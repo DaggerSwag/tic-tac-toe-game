@@ -16,7 +16,7 @@ public class TicTacToe {
     public TicTacToe(){
         frameInitializer();
     }
-    public void frameInitializer()
+    private void frameInitializer()
     {
         int width = 320;
         int height = 340;
@@ -37,7 +37,7 @@ public class TicTacToe {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
-    public void initGame()
+    private void initGame()
     {
         for(int row=0;row<3;row++)
         {
@@ -62,7 +62,7 @@ public class TicTacToe {
                                 labels[finalRow][finalCol].setSymbol("X");
                             }
                             label.removeMouseListener(this);
-                            System.out.println("Coordinates:" + "Row: " + finalRow + " Col: " + finalCol + " Symbol: " + labels[finalRow][finalCol].symbol);
+                            System.out.println("Coordinates:" + "Row: " + finalRow + " Col: " + finalCol + " Symbol: " + labels[finalRow][finalCol].getSymbol());
                             if(checkWin())
                             {
                                 System.out.println(labels[finalRow][finalCol].getSymbol()+" wins");
@@ -89,7 +89,7 @@ public class TicTacToe {
             }
         }
     }
-    public boolean checkWin(){
+    private boolean checkWin(){
         boolean isComplete=false;
 
         //Row-wise check

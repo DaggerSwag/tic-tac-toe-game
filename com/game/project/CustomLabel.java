@@ -35,9 +35,9 @@ public class CustomLabel {
         this.col = col;
     }
 
-    JLabel label;
-    String symbol;
-    int row,col;
+    private JLabel label;
+    private String symbol;
+    private int row,col;
     ImageIcon blank_tile=new ImageIcon("D:\\Free time projects\\TicTacToe game\\assets\\blank-tile.png");
     CustomLabel(JLabel label, String symbol, int row, int col){
         this.label=label;
