@@ -35,6 +35,7 @@ public class CustomLabel {
         this.col = col;
     }
 
+    //Custom class for storing label along with symbol, and row,column co-ordinates for precise tile-placement in the Frame
     private JLabel label;
     private String symbol;
     private int row,col;

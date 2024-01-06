@@ -5,6 +5,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Objects;
+import java.util.Random;
 
 public class TicTacToe {
     static CustomLabel[][] labels;
@@ -16,6 +17,8 @@ public class TicTacToe {
     public TicTacToe(){
         frameInitializer();
     }
+
+    //Frame Initialization and CustomLabel object creation and instantiation
     private void frameInitializer()
     {
         int width = 320;
@@ -45,23 +48,15 @@ public class TicTacToe {
             {
                 int finalCol = col;
                 int finalRow = row;
+                //Adding mouse listener to respective tile for player move
                 labels[row][col].getLabel().addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        clickCount++;
-                        handleMouseClick((JLabel)e.getSource(),clickCount);
-                    }
-                    public void handleMouseClick(JLabel label,int count)
-                    {
                         if(Objects.equals(labels[finalRow][finalCol].getSymbol(), "")) {
-                            if (count % 2 == 0) {
-                                label.setIcon(o_tile_colored);
-                                labels[finalRow][finalCol].setSymbol("O");
-                            } else {
-                                label.setIcon(x_tile_colored);
-                                labels[finalRow][finalCol].setSymbol("X");
-                            }
-                            label.removeMouseListener(this);
+
+                            labels[finalRow][finalCol].getLabel().setIcon(x_tile_colored);
+                            labels[finalRow][finalCol].setSymbol("X");
+
                             System.out.println("Coordinates:" + "Row: " + finalRow + " Col: " + finalCol + " Symbol: " + labels[finalRow][finalCol].getSymbol());
                             if(checkWin())
                             {
@@ -82,6 +77,23 @@ public class TicTacToe {
                                     System.out.println("It's a draw!");
                                     endGame("It's a draw!");
                                 }
+                                else {
+                                    int[] arr = makeCPUMove();
+                                    //This while loop checks for empty tiles to play until the CPU makes the right move/tiles that are not played yet.
+                                    while(!Objects.equals(labels[arr[0]][arr[1]].getSymbol(), "")) {
+                                        arr = makeCPUMove();
+                                    }
+                                    if (Objects.equals(labels[arr[0]][arr[1]].getSymbol(), "")) {
+                                        labels[arr[0]][arr[1]].getLabel().setIcon(o_tile_colored);
+                                        labels[arr[0]][arr[1]].setSymbol("O");
+                                        System.out.println("Coordinates:" + "Row: " + arr[0] + " Col: " + arr[1] + " Symbol: " + labels[arr[0]][arr[1]].getSymbol());
+                                        if(checkWin())
+                                        {
+                                            System.out.println(labels[arr[0]][arr[1]].getSymbol()+" wins");
+                                            endGame(labels[arr[0]][arr[1]].getSymbol()+" wins");
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -89,6 +101,8 @@ public class TicTacToe {
             }
         }
     }
+
+    //TicTacToe Game LOGIC
     private boolean checkWin(){
         boolean isComplete=false;
 
@@ -131,6 +145,17 @@ public class TicTacToe {
         }
         return isComplete;
     }
+
+    //Random tile coordinates chosen for CPU move
+    private int[] makeCPUMove() {
+        Random random=new Random();
+        int[] randomVal =new int[2];
+        randomVal[0]=random.nextInt(3);
+        randomVal[1]=random.nextInt(3);
+        return randomVal;
+    }
+
+    //Resets the game Grid for new Game by removing all existing listeners and sets label icon and symbol to blank_tile and 'O' respectively
     private void resetGameGrid() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -144,6 +169,8 @@ public class TicTacToe {
         clickCount=0;
         initGame();
     }
+
+    //DialogWindow for Winner or Draw declaration
     private void endGame(String result) {
         JOptionPane.showMessageDialog(new JLabel(), result, "Game Over", JOptionPane.INFORMATION_MESSAGE);
         resetGameGrid();
