@@ -4,9 +4,7 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.HashMap;
 import java.util.Objects;
-import java.util.Random;
 
 public class TicTacToe {
     static class Move
@@ -168,9 +166,10 @@ public class TicTacToe {
         if (isBoardFull(labels))
             return 0;
 
+        int best;
         if (isMax)
         {
-            int best = -1000;
+            best = -1000;
             for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 3; j++)
@@ -184,10 +183,9 @@ public class TicTacToe {
                     }
                 }
             }
-            return best;
         }
         else {
-            int best = 1000;
+            best = 1000;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     if (Objects.equals(labels[i][j].getSymbol(), "")) {
@@ -198,8 +196,8 @@ public class TicTacToe {
                     }
                 }
             }
-            return best;
         }
+        return best;
     }
 
     private boolean isBoardFull(CustomLabel[][] labels){
