@@ -5,9 +5,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Objects;
-import java.util.Random;
 
 public class TicTacToe {
+    static class Move
+    {
+        int row,col;
+    }
     static CustomLabel[][] labels;
     ImageIcon x_tile_colored=new ImageIcon("D:\\Free time projects\\TicTacToe game\\assets\\x-tile-colored.png");
     ImageIcon o_tile_colored=new ImageIcon("D:\\Free time projects\\TicTacToe game\\assets\\o-tile-colored.png");
@@ -21,8 +24,11 @@ public class TicTacToe {
     //Frame Initialization and CustomLabel object creation and instantiation
     private void frameInitializer()
     {
-        int width = 320;
-        int height = 340;
+//        int width = 320;
+        int width=o_tile_colored.getIconWidth()*3+15;
+        int height=o_tile_colored.getIconHeight()*3+37;
+
+//        int height = 340;
         frame.setSize(width,height);
         clickCount=0;
         labels=new CustomLabel[3][3];
@@ -64,25 +70,12 @@ public class TicTacToe {
                                 endGame(labels[finalRow][finalCol].getSymbol()+" wins");
                             }
                             else {
-                                boolean isBoardFull = true;
-                                for (int i = 0; i < 3; i++) {
-                                    for (int j = 0; j < 3; j++) {
-                                        if (Objects.equals(labels[i][j].getSymbol(), "")) {
-                                            isBoardFull = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (isBoardFull) {
+                                if (isBoardFull(labels)) {
                                     System.out.println("It's a draw!");
                                     endGame("It's a draw!");
                                 }
                                 else {
                                     int[] arr = makeCPUMove();
-                                    //This while loop checks for empty tiles to play until the CPU makes the right move/tiles that are not played yet.
-                                    while(!Objects.equals(labels[arr[0]][arr[1]].getSymbol(), "")) {
-                                        arr = makeCPUMove();
-                                    }
                                     if (Objects.equals(labels[arr[0]][arr[1]].getSymbol(), "")) {
                                         labels[arr[0]][arr[1]].getLabel().setIcon(o_tile_colored);
                                         labels[arr[0]][arr[1]].setSymbol("O");
@@ -104,55 +97,160 @@ public class TicTacToe {
 
     //TicTacToe Game LOGIC
     private boolean checkWin(){
-        boolean isComplete=false;
 
         //Row-wise check
         for(int i=0;i<3;i++) {
             if ((!Objects.equals(labels[0][i].getSymbol(), "")) &&
                     (Objects.equals(labels[0][i].getSymbol(), labels[1][i].getSymbol())) &&
                     (Objects.equals(labels[1][i].getSymbol(), labels[2][i].getSymbol()))) {
-                isComplete = true;
-                break;
+                return true;
             }
         }
 
         //Column-wise check
-        if(!isComplete) {
             for (int i = 0; i < 3; i++) {
                 if ((!Objects.equals(labels[i][0].getSymbol(), "")) &&
                         (Objects.equals(labels[i][0].getSymbol(), labels[i][1].getSymbol())) &&
                         (Objects.equals(labels[i][1].getSymbol(), labels[i][2].getSymbol()))) {
-                    isComplete = true;
-                    break;
+                    return true;
                 }
             }
-        }
 
         //Diagonal check from top left to bottom right
-        if(!isComplete) {
             if ((!Objects.equals(labels[0][0].getSymbol(), "")) &&
                     (Objects.equals(labels[0][0].getSymbol(), labels[1][1].getSymbol())) &&
                     (Objects.equals(labels[1][1].getSymbol(), labels[2][2].getSymbol())))
-                isComplete = true;
-        }
+                return true;
 
         //Diagonal check from top right to bottom left
-        if(!isComplete) {
-            if ((!Objects.equals(labels[0][2].getSymbol(), "")) &&
-                    (Objects.equals(labels[0][2].getSymbol(), labels[1][1].getSymbol())) &&
-                    (Objects.equals(labels[1][1].getSymbol(), labels[2][0].getSymbol())))
-                isComplete = true;
-        }
-        return isComplete;
+        return (!Objects.equals(labels[0][2].getSymbol(), "")) &&
+                (Objects.equals(labels[0][2].getSymbol(), labels[1][1].getSymbol())) &&
+                (Objects.equals(labels[1][1].getSymbol(), labels[2][0].getSymbol()));
     }
 
     //Random tile coordinates chosen for CPU move
     private int[] makeCPUMove() {
-        Random random=new Random();
-        int[] randomVal =new int[2];
-        randomVal[0]=random.nextInt(3);
-        randomVal[1]=random.nextInt(3);
-        return randomVal;
+
+        int best=-1000;
+        Move move= new Move();
+
+        move.row=-1;
+        move.col=-1;
+        for(int i=0;i<3;i++)
+        {
+            for(int j=0;j<3;j++)
+            {
+                if(Objects.equals(labels[i][j].getSymbol(),"")) {
+                    labels[i][j].setSymbol("O");
+                    int val = minimax(labels,0, false);
+                    labels[i][j].setSymbol("");
+
+                    if (val > best) {
+                        move.row = i;
+                        move.col = j;
+                        best = val;
+                    }
+                }
+            }
+        }
+        return new int[]{move.row, move.col};
+    }
+
+    private int minimax(CustomLabel[][] labels, int depth, boolean isMax)
+    {
+        int score = evaluateBoard(labels);
+        if(score == 10)
+            return score;
+        if(score == -10)
+            return score;
+        if (isBoardFull(labels))
+            return 0;
+
+        int best;
+        if (isMax)
+        {
+            best = -1000;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (Objects.equals(labels[i][j].getSymbol(),""))
+                    {
+                        labels[i][j].setSymbol("O");
+                        best = Math.max(best, minimax(labels, depth + 1, false));
+
+                        labels[i][j].setSymbol("");
+                    }
+                }
+            }
+        }
+        else {
+            best = 1000;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (Objects.equals(labels[i][j].getSymbol(), "")) {
+                        labels[i][j].setSymbol("X");
+                        best = Math.min(best, minimax(labels, depth + 1, true));
+
+                        labels[i][j].setSymbol("");
+                    }
+                }
+            }
+        }
+        return best;
+    }
+
+    private boolean isBoardFull(CustomLabel[][] labels){
+        boolean isBoardFull = true;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (Objects.equals(labels[i][j].getSymbol(), "")) {
+                    isBoardFull = false;
+                    break;
+                }
+            }
+        }
+        return isBoardFull;
+    }
+
+    private int evaluateBoard(CustomLabel[][] labels){
+        for(int i=0;i<3;i++) {
+            if (
+                    (Objects.equals(labels[0][i].getSymbol(), labels[1][i].getSymbol())) &&
+                    (Objects.equals(labels[1][i].getSymbol(), labels[2][i].getSymbol()))) {
+                if(Objects.equals(labels[0][i].getSymbol(),"X"))
+                    return -10;
+                else if(Objects.equals(labels[0][i].getSymbol(),"O"))
+                    return 10;
+            }
+        }
+        for(int i=0;i<3;i++) {
+            if (
+                    (Objects.equals(labels[i][0].getSymbol(), labels[i][1].getSymbol())) &&
+                    (Objects.equals(labels[i][1].getSymbol(), labels[i][2].getSymbol()))) {
+                if(Objects.equals(labels[i][0].getSymbol(),"X"))
+                    return -10;
+                else if(Objects.equals(labels[i][0].getSymbol(),"O"))
+                    return 10;
+            }
+        }
+        if (
+                (Objects.equals(labels[0][0].getSymbol(), labels[1][1].getSymbol())) &&
+                (Objects.equals(labels[1][1].getSymbol(), labels[2][2].getSymbol()))) {
+            if(Objects.equals(labels[0][0].getSymbol(),"X"))
+                return -10;
+            else if(Objects.equals(labels[0][0].getSymbol(),"O"))
+                return 10;
+        }
+        if (
+                (Objects.equals(labels[0][2].getSymbol(), labels[1][1].getSymbol())) &&
+                (Objects.equals(labels[1][1].getSymbol(), labels[2][0].getSymbol()))) {
+            if(Objects.equals(labels[0][2].getSymbol(),"X"))
+                return -10;
+            else if(Objects.equals(labels[0][2].getSymbol(),"O"))
+                return 10;
+        }
+        return 0;
     }
 
     //Resets the game Grid for new Game by removing all existing listeners and sets label icon and symbol to blank_tile and 'O' respectively
